@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sahithi's Expenses</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+  <div class="card">
+
+    <h1 class="main-title">Sahithi's Expenses</h1>
+
+    <!-- MONTH + YEAR -->
+    <div class="top-bar">
+      <button onclick="changeMonth(-1)">◀</button>
+      <span id="monthYear"></span>
+      <button onclick="changeMonth(1)">▶</button>
+    </div>
+
+    <!-- DATES -->
+    <div class="dates" id="datesContainer"></div>
+
+    <p class="subtitle">Track your spending</p>
+
+    <div class="amount" id="amountDisplay">₹ 0</div>
+
+    <!-- CATEGORIES -->
+    <div class="categories">
+      <button onclick="selectCategory(this,'Food')">🍔 Food</button>
+      <button onclick="selectCategory(this,'Travel')">🚕 Travel</button>
+      <button onclick="selectCategory(this,'Fun')">🎉 Fun</button>
+      <button onclick="selectCategory(this,'Shopping')">🛒 Shopping</button>
+    </div>
+
+    <!-- SUB OPTIONS -->
+    <div id="subOptions" class="sub-options"></div>
+
+    <!-- OUTPUT -->
+    <div id="selectedExpense" class="expense-item"></div>
+
+  </div>
+</div>
+
+<script>
+
+const data = {
+  Food: { Cafe: 120, Restaurant: 250 },
+  Travel: { Cab: 150, Bus: 50 },
+  Fun: { Movies: 200, Games: 100 },
+  Shopping: { Clothes: 300, Essentials: 180 }
+};
+
+let currentDate = new Date();
+let selectedDate = new Date().getDate();
+
+function updateMonthYear() {
+  let options = { month: 'long', year: 'numeric' };
+  document.getElementById("monthYear").innerText =
+    currentDate.toLocaleDateString('en-US', options);
+}
+
+function changeMonth(step) {
+  currentDate.setMonth(currentDate.getMonth() + step);
+  generateDates();
+  updateMonthYear();
+}
+
+function generateDates() {
+  let container = document.getElementById("datesContainer");
+  container.innerHTML = "";
+
+  let year = currentDate.getFullYear();
+  let month = currentDate.getMonth();
+
+  let daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    let btn = document.createElement("button");
+    btn.innerText = i;
+
+    btn.onclick = function() {
+      selectedDate = i;
+      highlightDate();
+      clearSelection();
+    };
+
+    container.appendChild(btn);
+  }
+
+  highlightDate();
+}
+
+function highlightDate() {
+  let buttons = document.querySelectorAll(".dates button");
+  buttons.forEach((btn, i) => {
+    btn.classList.toggle("active-date", (i + 1) === selectedDate);
+  });
+}
+
+function selectCategory(button, category) {
+
+  document.querySelectorAll(".categories button")
+    .forEach(btn => btn.classList.remove("active-category"));
+
+  button.classList.add("active-category");
+
+  let subDiv = document.getElementById("subOptions");
+  subDiv.innerHTML = "";
+
+  for (let item in data[category]) {
+    let btn = document.createElement("button");
+    btn.innerText = item;
+
+    btn.onclick = function() {
+      showSingleExpense(item, data[category][item]);
+    };
+
+    subDiv.appendChild(btn);
+  }
+}
+
+function showSingleExpense(name, amount) {
+  document.getElementById("amountDisplay").innerText = "₹ " + amount;
+  document.getElementById("selectedExpense").innerText =
+    "Date " + selectedDate + ": " + name + " – ₹" + amount;
+}
+
+function clearSelection() {
+  document.getElementById("amountDisplay").innerText = "₹ 0";
+  document.getElementById("selectedExpense").innerText = "";
+  document.getElementById("subOptions").innerHTML = "";
+
+  document.querySelectorAll(".categories button")
+    .forEach(btn => btn.classList.remove("active-category"));
+}
+
+// INIT
+updateMonthYear();
+generateDates();
+
+</script>
+
+</body>
+</html>
